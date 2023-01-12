@@ -2,6 +2,7 @@ mod sha224;
 mod sha256;
 mod sha384;
 mod sha512;
+mod sha512_224;
 
 /// SHA-2 hash function.
 ///
