@@ -3,23 +3,23 @@ use librypt_hash::{Hash, HashFn};
 use crate::Sha2;
 
 impl Sha2 {
-    pub const SHA_512_224_STATE: [u64; 8] = [
-        0x8c3d37c819544da2,
-        0x73e1996689dcd4d6,
-        0x1dfab7ae32ff9c82,
-        0x679dd514582f9fcf,
-        0x0f6d2b697bd44da8,
-        0x77e36f7304c48942,
-        0x3f9d85a86a1d36c8,
-        0x1112e6ad91d692a1,
+    pub const SHA_512_256_STATE: [u64; 8] = [
+        0x22312194fc2bf72c,
+        0x9f555fa3c84c64c2,
+        0x2393b86b6f53b151,
+        0x963877195940eabd,
+        0x96283ee2a88effe3,
+        0xbe5e1e2553863992,
+        0x2b0199fc2c85b8aa,
+        0x0eb72ddc81c52ca2,
     ];
 }
 
-impl HashFn<128, 28> for Sha2 {
+impl HashFn<128, 32> for Sha2 {
     fn new() -> Self {
         Self {
             total: 0,
-            state: Self::SHA_512_224_STATE,
+            state: Self::SHA_512_256_STATE,
             buffer: (0, [0u8; 128]),
         }
     }
@@ -38,34 +38,30 @@ impl HashFn<128, 28> for Sha2 {
         }
     }
 
-    fn finalize(mut self) -> Hash<28> {
+    fn finalize(mut self) -> Hash<32> {
         self.compute_padded_512();
 
-        let mut hash = [0u8; 28];
+        let mut hash = [0u8; 32];
 
-        for i in 0..3 {
+        for i in 0..4 {
             hash[i * 8..i * 8 + 8].copy_from_slice(&self.state[i].to_be_bytes());
         }
-
-        hash[24..28].copy_from_slice(&self.state[3].to_be_bytes()[..4]);
 
         hash
     }
 
-    fn finalize_reset(&mut self) -> Hash<28> {
+    fn finalize_reset(&mut self) -> Hash<32> {
         self.compute_padded_512();
 
-        let mut hash = [0u8; 28];
+        let mut hash = [0u8; 32];
 
-        for i in 0..3 {
+        for i in 0..4 {
             hash[i * 8..i * 8 + 8].copy_from_slice(&self.state[i].to_be_bytes());
         }
 
-        hash[24..28].copy_from_slice(&self.state[3].to_be_bytes()[..4]);
-
         // reset state
         self.total = 0;
-        self.state = Self::SHA_512_224_STATE;
+        self.state = Self::SHA_512_256_STATE;
         self.buffer = (0, [0u8; 128]);
 
         hash
@@ -79,12 +75,12 @@ mod tests {
     use hex::ToHex;
 
     #[test]
-    fn test_sha512_224() {
-        let hash = <Sha2 as HashFn<128, 28>>::hash(b"Hello, world!");
+    fn test_sha512_256() {
+        let hash = <Sha2 as HashFn<128, 32>>::hash(b"Hello, world!");
 
         assert_eq!(
             hash.encode_hex::<String>(),
-            "32620068b859669b45b31008e08b7384649ad2ca3f5163a3a71e5745"
+            "330c723f25267587db0b9f493463e017011239169cb57a6db216c63774367115"
         );
     }
 }
