@@ -1,3 +1,6 @@
+#![forbid(unsafe_code)]
+#![cfg_attr(not(test), no_std)]
+
 mod sha224;
 mod sha256;
 mod sha384;
